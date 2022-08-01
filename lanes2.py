@@ -46,7 +46,7 @@ def display_lines(image,lines):
     if lines is not None:
         for line in lines:
             x1,y1,x2,y2 = line.reshape(4)  # Reshaping all the lines to a 1D array.
-            cv2.line(line_image,(x1,y1),(x2,y2),(255,0,0),10) # Draw a Blue Line(BGR in OpenCV)
+            cv2.line(line_image,(x1,y1),(x2,y2),(200,0,0),10) # Draw a Blue Line(BGR in OpenCV)
     return line_image
 
 def region_of_interest(image):
@@ -86,12 +86,28 @@ def select_file():
         cv2.imshow('Result',combo_image)
         cv2.waitKey(1)
 
+def open_video1():
+    filename = "test_video1.mp4"
+    print('Selected:', filename)
+
+    cap = cv2.VideoCapture(filename)
+    while(cap.isOpened()):
+        _, frame = cap.read()
+        canny_image = canny(frame)
+        cropped_image = region_of_interest(canny_image)
+        lines = cv2.HoughLinesP(cropped_image,2,np.pi/180,100,np.array([]),minLineLength=10,maxLineGap=5)
+        averaged_lines = average_slope_intercept(frame,lines)
+        line_image = display_lines(frame,averaged_lines)
+        combo_image = cv2.addWeighted(frame,0.8,line_image,1,1)    # Imposing the line_image on the original image
+
+        cv2.imshow('Result',combo_image)
+        cv2.waitKey(1)
 
 
 # create the root window
 root = tk.Tk()
 root.title('Lane Line Detection')
-root.geometry('300x150')
+root.geometry('400x300')
 
 label = Label(root,text="Lane Line Detection")
 label.pack(pady=20)
@@ -102,6 +118,40 @@ open_button = ttk.Button(
     text='Select Video',
     command=select_file
 )
+
+# sample buttons
+# sample1_button = ttk.Button(
+#     root,
+#     text='sample video 1',
+#     command=open_video1
+# )
+# sample2_button = ttk.Button(
+#     root,
+#     text='sample video 2',
+#     command=select_file
+# )
+# sample3_button = ttk.Button(
+#     root,
+#     text='sample video 3',
+#     command=select_file
+# )
+# sample4_button = ttk.Button(
+#     root,
+#     text='sample video 4',
+#     command=select_file
+# )
+# sample1_button.place(x=100, y=200)
+# sample2_button.place(x=200, y=200)
+# sample3_button.place(x=100, y=235)
+# sample4_button.place(x=200, y=235)
+
+# sample1_button.grid(row=1,column=0)
+# sample2_button.grid(row=2,column=2)
+# sample3_button.grid(row=3,column=3)
+# sample4_button.grid(row=4,column=4)
+# open_button.grid(row=5,column=5)
+
+
 
 open_button.pack(expand=True)
 
